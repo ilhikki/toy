@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="UTF-8">
+    <title>Lipsticks</title>
+    <style>
+        .color-box {
+            margin: 20vh 10vh 0 10vh;
+            height: 40vh;
+            border: 5px #EEE solid;
+            font-size: 10vw;
+            color: #EEE;
+        }
+
+        .selected-lipstick {
+            font-size: 6vw;
+            color: #EEE;
+            text-align: center;
+        }
+
+        body {
+            background: rgb(248, 197, 183);
+        }
+    </style>
+
+    <script>
+        const LIPSTICK_COLOR_MAPPING = {
+            "魅可 红钻唇膏": "#E52B50",
+            "香奈儿 经典唇膏": "#D32E5E",
+            "迪奥 烈艳蓝金唇膏": "#D31C2C",
+            "娇兰 奇迹唇膏": "#F20B4A",
+            "阿玛尼红管唇釉": "#F2001C",
+            "兰蔻 完美唇膏": "#B22133",
+            "妮维雅 水润唇膏": "#FF4C4C",
+            "倩碧 色彩唇膏": "#D92E56",
+            "圣罗兰 圆管唇膏": "#C5192D",
+            "欧莱雅 色彩禁区唇膏": "#C50000",
+            "戴森 钟爱唇膏": "#E3170A",
+            "美宝莲 持久唇釉": "#FF2F2F",
+            "完美日记 黑金色唇釉": "#E21D35",
+            "花西子 炫色唇膏": "#E82661",
+            "蜜丝佛陀 拥吻唇膏": "#EE1B2E",
+            "可莱丝 烂番茄唇膏": "#EE3B3B",
+            "丝芙兰 星辰之恋唇釉": "#E54E47",
+            "珂莱欧 水润唇膏": "#FF6666",
+            "雅诗兰黛 菁红炫彩唇膏": "#CD3333",
+            "娇韵诗 水韵唇膏": "#FF4A4A",
+            "欧莱雅 纯色显白唇膏": "#FF6E73",
+            "植村秀 水润唇膏": "#DD3355",
+            "薇姿 玫瑰柔雾唇膏": "#D3274F",
+            "美宝莲 粉嫩诱惑唇釉": "#FF69B4",
+            "3CE 大红唇膏": "#FF2F2F",
+            "纪梵希 魅惑唇膏": "#F7347A",
+            "蓝蔻 经典唇膏": "#CC0000",
+            "美加净 滋润唇膏": "#F30E0E",
+            "雅漾 纯净无瑕唇膏": "#C71585",
+            "兰芝 柔雾唇膏": "#F06D72",
+            "雪花秀 花瓣染唇膏": "#E82C6D",
+            "肌肤之钥 水润唇膏": "#F87A7B",
+            "欧珀莱 炫色唇膏": "#DB5A6B",
+            "卡姿兰 丝绸唇膏": "#CD5555",
+            "佰草集 水润唇膏": "#F47C7C",
+            "娇家 炫魅唇膏": "#EE1289",
+            "红颜 时尚唇膏": "#EA4C88",
+            "宝姿 魅力红唇膏": "#D61C50",
+            "百雀羚 红魔鬼唇膏": "#F05654",
+            "丸美化妆品 丸美唇膏": "#E92946",
+            "雅莉格丽 热情唇膏": "#FF6347",
+            "韩后 炫魅唇膏": "#EF7A82",
+            "大地 滋润唇膏": "#FF7256",
+            "悦诗风吟 水光唇釉": "#EF6D6D"
+        }
+
+        const LIPSTICKS = Object.entries(LIPSTICK_COLOR_MAPPING).map(value => {
+            const [name, rgb] = value
+            return {name, rgb}
+        })
+
+        function onSwipeGestures(element, callback) {
+            let startX, startY
+
+            element.addEventListener('touchstart', function (event) {
+                startX = event.touches[0].pageX
+                startY = event.touches[0].pageY
+            }, false)
+
+            element.addEventListener('touchend', function (event) {
+                const endX = event.changedTouches[0].pageX
+                const endY = event.changedTouches[0].pageY
+                const vectorX = endX - startX
+                const vectorY = endY - startY
+                const distanceX = Math.abs(vectorX)
+                const distanceY = Math.abs(vectorY)
+                if (distanceX > distanceY) {
+                    vectorX > 0 ? callback('right', distanceX) : callback('left', distanceX)
+                } else {
+                    vectorY > 0 ? callback('down', distanceY) : callback('up', distanceY)
+                }
+            }, false)
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]
+            }
+            return array
+        }
+
+        const pageData = {
+            lipstickArray: shuffle(LIPSTICKS),
+            currentLipstickIndex: 0,
+            selectedLipstick: []
+        }
+
+        function init() {
+            pageData.currentLipstickIndex = 0
+            pageData.lipstickArray = shuffle(LIPSTICKS)
+        }
+
+        function renderSelectedLipstick(lipstick) {
+            return `<div class="selected-lipstick">${lipstick.name}</div>`
+        }
+
+        function onSelect() {
+            const currentLipstick = pageData.lipstickArray[pageData.currentLipstickIndex]
+            pageData.selectedLipstick.unshift(currentLipstick)
+            pageData.selectedLipstick.length = Math.min(pageData.selectedLipstick.length, 5)
+            init()
+            render()
+        }
+
+        function render() {
+            const currentLipstick = pageData.lipstickArray[pageData.currentLipstickIndex]
+            // language=HTML
+            document.body.innerHTML = `
+                <div
+                        class="color-box"
+                        onclick="onSelect()"
+                        style="background-color: ${currentLipstick.rgb}"
+                >
+                    ${pageData.currentLipstickIndex}
+                </div>
+                <div>${pageData.selectedLipstick.map(renderSelectedLipstick)}</div>
+            `
+        }
+
+        function onload() {
+            init()
+            onSwipeGestures(document.body, (direction, length) => {
+                if (length < 100) {
+                    return
+                }
+                if (direction === 'left') {
+                    pageData.currentLipstickIndex = Math.min(pageData.currentLipstickIndex + 1, pageData.lipstickArray.length - 1)
+                } else if (direction === 'right') {
+                    pageData.currentLipstickIndex = Math.max(pageData.currentLipstickIndex - 1, 0)
+                }
+                render()
+            })
+            render()
+        }
+    </script>
+</head>
+<body onload="onload()">
+</body>
+</html>
